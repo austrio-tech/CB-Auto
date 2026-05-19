@@ -11,8 +11,7 @@ from app.models.schemas import (
     DataRequest,
     RespondRequest,
 )
-from app.services import llm
-from app.services import knowledge
+from app.services import knowledge, llm
 from app.services import session as session_store
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
@@ -25,8 +24,14 @@ async def require_api_key(x_api_key: str = Header(...)):
 
 @router.post("", response_model=Union[AnsweredResponse, DataNeededResponse])
 async def chat(req: ChatRequest, _=Depends(require_api_key)):
+    # Retrieve or start a conversation
+    session_id, history = session_store.get_or_create_conversation(
+        req.session_id, settings.session_ttl_minutes
+    )
+
     kb = knowledge.get_relevant_kb(req.question)
-    messages = [{"role": "user", "content": req.question}]
+    # Prepend conversation history so the LLM has context from prior turns
+    messages = [*history, {"role": "user", "content": req.question}]
 
     raw = await llm.ask_llm(messages, kb)
     needs_data, payload = llm.parse_llm_response(raw)
@@ -37,10 +42,12 @@ async def chat(req: ChatRequest, _=Depends(require_api_key)):
             question=req.question,
             history=messages,
             data_request=payload,
+            conversation_id=session_id,
             ttl_minutes=settings.session_ttl_minutes,
         )
         return DataNeededResponse(
             ref_code=ref_code,
+            session_id=session_id,
             data_request=DataRequest(
                 description=payload.get("description", ""),
                 table=payload.get("table", ""),
@@ -49,7 +56,13 @@ async def chat(req: ChatRequest, _=Depends(require_api_key)):
             ),
         )
 
-    return AnsweredResponse(answer=str(payload))
+    answer = str(payload)
+    session_store.append_turn(
+        session_id, req.question, answer,
+        max_turns=settings.conversation_max_turns,
+        ttl_minutes=settings.session_ttl_minutes,
+    )
+    return AnsweredResponse(answer=answer, session_id=session_id)
 
 
 @router.post("/respond", response_model=AnsweredResponse)
@@ -59,8 +72,6 @@ async def respond(req: RespondRequest, _=Depends(require_api_key)):
         raise HTTPException(status_code=404, detail="ref_code not found or has expired")
 
     kb = knowledge.get_relevant_kb(sess.question)
-
-    # Single compact message — avoids replaying the full conversation history
     messages = [{
         "role": "user",
         "content": (
@@ -74,4 +85,12 @@ async def respond(req: RespondRequest, _=Depends(require_api_key)):
     session_store.delete_session(req.ref_code)
 
     _, answer = llm.parse_llm_response(raw)
-    return AnsweredResponse(answer=str(answer))
+    answer = str(answer)
+
+    # Save this completed turn into the conversation history
+    session_store.append_turn(
+        sess.conversation_id, sess.question, answer,
+        max_turns=settings.conversation_max_turns,
+        ttl_minutes=settings.session_ttl_minutes,
+    )
+    return AnsweredResponse(answer=answer, session_id=sess.conversation_id)

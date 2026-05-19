@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     )
     api_key: str
     session_ttl_minutes: int = 30
+    conversation_max_turns: int = 3
     kb_folder: str = "K_B"
     allowed_origins: str = "*"
 

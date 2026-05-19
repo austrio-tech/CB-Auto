@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 class ChatRequest(BaseModel):
     question: str
+    session_id: str | None = None
 
 
 class RespondRequest(BaseModel):
@@ -24,9 +25,11 @@ class DataRequest(BaseModel):
 class AnsweredResponse(BaseModel):
     status: Literal["answered"] = "answered"
     answer: str
+    session_id: str
 
 
 class DataNeededResponse(BaseModel):
     status: Literal["data_needed"] = "data_needed"
     ref_code: str
+    session_id: str
     data_request: DataRequest
