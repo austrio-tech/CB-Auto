@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import Response
 
 from app.config import settings
 from app.routers import chat
@@ -39,13 +40,26 @@ app.add_middleware(
 async def log_requests(request: Request, call_next):
     if request.method == "POST":
         raw = await request.body()
-        body_str = raw.decode("utf-8", errors="replace")
-        logger.info(f"Incoming {request.method} {request.url.path} | Body: {body_str}")
-        # Re-inject body so the route handler can still read it
+        logger.info(f">> {request.method} {request.url.path} | {raw.decode('utf-8', errors='replace')}")
         async def _receive():
             return {"type": "http.request", "body": raw}
         request._receive = _receive
-    return await call_next(request)
+
+    response = await call_next(request)
+
+    # Collect the response stream, log it, then re-emit it
+    chunks = []
+    async for chunk in response.body_iterator:
+        chunks.append(chunk)
+    response_body = b"".join(chunks)
+    logger.info(f"<< {request.method} {request.url.path} [{response.status_code}] | {response_body.decode('utf-8', errors='replace')}")
+
+    return Response(
+        content=response_body,
+        status_code=response.status_code,
+        headers=dict(response.headers),
+        media_type=response.media_type,
+    )
 
 app.include_router(chat.router)
 
