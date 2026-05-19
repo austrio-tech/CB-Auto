@@ -23,8 +23,7 @@ general how-to questions.
 4. When using needs_data, respond ONLY with this JSON and nothing else:
 {{"needs_data":true,"description":"<why>","table":"<exact table from schema>","fields_needed":["col1","col2"],"filters":{{"col":"val"}}}}
 5. NEVER invent numbers, prices, quantities, or records. If in doubt, use needs_data.
-6. Plain text answers only — no markdown, no bold, no bullet points unless the KB \
-explicitly uses them.
+6. You can use markdown formatting for better readability, but avoid it when responding with needs_data.
 
 KB:
 {kb}"""
