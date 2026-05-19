@@ -8,10 +8,7 @@ class Settings(BaseSettings):
     openrouter_models: str = (
         "deepseek/deepseek-v4-flash:free,"
         "qwen/qwen3-next-80b-a3b-instruct:free,"
-        "nvidia/nemotron-3-super-120b-a12b:free,"
-        "meta-llama/llama-3.3-70b-instruct:free,"
-        "google/gemma-4-31b-it:free,"
-        "nousresearch/hermes-3-llama-3.1-405b:free"
+        "nvidia/nemotron-3-super-120b-a12b:free"
     )
     api_key: str
     session_ttl_minutes: int = 30
