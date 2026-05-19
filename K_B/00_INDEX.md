@@ -4,7 +4,9 @@
 **Created:** May 2026  
 **Purpose:** Chatbot training data for the Ali Grandsons mobile app Support Center and any future AI-powered assistant.
 
-This knowledge base is stored in the `KnowlegdeBase/` folder of the Ali Grandson Spare Parts Flutter project. It contains **12 documents** covering every aspect of the business that a support chatbot needs.
+This knowledge base is stored in the `KnowlegdeBase/` folder of the Ali Grandson Spare Parts Flutter project. It contains **11 documents** covering every aspect of the business that a support chatbot needs.
+
+> **Note:** Product catalogue data (prices, stock, descriptions) is served exclusively from the live database. There is no static product catalogue document — all product questions must use `data_needed`. See Document 13.
 
 ---
 
@@ -15,7 +17,6 @@ This knowledge base is stored in the `KnowlegdeBase/` folder of the Ali Grandson
 | `00_INDEX.md` (this file) | Master index and usage guide |
 | `01_company_overview.md` | Company background, mission, contact info |
 | `02_store_locations_warehouses.md` | 7 branch locations across Oman with addresses, phones, hours, and delivery coverage |
-| `03_product_catalog.md` | 12 product categories, top products, brands, prices, and warranty summary |
 | `04_ordering_and_delivery.md` | Step-by-step ordering guide, order statuses, delivery timeframes and policies |
 | `05_payment_and_returns.md` | Payment methods, refund process, warranty claims |
 | `06_customer_support_faqs.md` | Complete FAQ database organised by topic (Account, Products, Orders, Delivery, Payment, Returns, Technical, App Usage, Contact) |
@@ -45,8 +46,7 @@ This knowledge base is stored in the `KnowlegdeBase/` folder of the Ali Grandson
 3. Document 06 (Full FAQs) — for detailed static answers
 4. Document 02 (Locations) — for address/contact queries
 5. Document 04 (Ordering) — for "how do I order" process queries (not live order status)
-6. Document 03 (Products) — category reference only; live data comes from the database
-7. Document 05 (Payment/Returns) — for transaction queries
+6. Document 05 (Payment/Returns) — for transaction queries
 8. Document 07 (Vehicle Guide) — for compatibility queries
 9. Document 08 (Promotions) — for pricing/offers queries
 10. Document 11 (Context) — for regional/background queries
