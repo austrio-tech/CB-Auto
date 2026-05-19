@@ -1,8 +1,17 @@
 # Knowledge Base — Document 03: Product Catalogue & Spare Parts Information
 
+> **CHATBOT INSTRUCTION — MANDATORY**  
+> When a customer asks about **any specific product, price, stock level, or availability**,
+> do **NOT** answer from the text in this document.  
+> This document is a category reference only. Prices and stock change daily.  
+> Always return `data_needed` with `table: "spare_part_products"` to fetch live data
+> from the database. See **Document 13** for the exact payload format.
+
+---
+
 Ali Grandson Spare Parts carries over **4,500 SKUs** across **12 main product categories**.
 
-All prices are in **Omani Rials (OMR)**. Prices may vary slightly by branch; the app always shows the current price.
+All prices are in **Omani Rials (OMR)**. Prices shown below are approximate guides only — always check the live database for the current price and stock status.
 
 ---
 

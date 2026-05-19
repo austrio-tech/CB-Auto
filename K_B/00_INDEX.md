@@ -25,6 +25,7 @@ This knowledge base is stored in the `KnowlegdeBase/` folder of the Ali Grandson
 | `10_chatbot_responses_quick_reference.md` | Pre-written responses for all common intents |
 | `11_oman_automotive_context.md` | Oman driving conditions, regional vehicle trends, climate impact on parts, public holidays |
 | `12_database_schema.md` | Complete SQLite database schema — all 7 tables, columns, types, FK relationships, version history |
+| `13_chatbot_data_queries.md` | **CRITICAL** — Exact rules for when to return `data_needed` vs answer statically; includes precise `data_request` payloads for products and orders |
 
 ---
 
@@ -39,16 +40,17 @@ This knowledge base is stored in the `KnowlegdeBase/` folder of the Ali Grandson
 
 ### Document Priority Order (for conflict resolution)
 
-1. Document 10 (Quick Reference) — use as first-pass response templates
-2. Document 06 (Full FAQs) — for detailed answers
-3. Document 02 (Locations) — for address/contact queries
-4. Document 04 (Ordering) — for process queries
-5. Document 03 (Products) — for product/part queries
-6. Document 05 (Payment/Returns) — for transaction queries
-7. Document 07 (Vehicle Guide) — for compatibility queries
-8. Document 08 (Promotions) — for pricing/offers queries
-9. Document 11 (Context) — for regional/background queries
-10. Document 01 (Company) — for general business queries
+1. **Document 13 (Data Query Rules)** — **read first, always** — defines when to query the live database vs answer statically
+2. Document 10 (Quick Reference) — use as first-pass response templates for static topics
+3. Document 06 (Full FAQs) — for detailed static answers
+4. Document 02 (Locations) — for address/contact queries
+5. Document 04 (Ordering) — for "how do I order" process queries (not live order status)
+6. Document 03 (Products) — category reference only; live data comes from the database
+7. Document 05 (Payment/Returns) — for transaction queries
+8. Document 07 (Vehicle Guide) — for compatibility queries
+9. Document 08 (Promotions) — for pricing/offers queries
+10. Document 11 (Context) — for regional/background queries
+11. Document 01 (Company) — for general business queries
 
 ---
 
@@ -125,14 +127,15 @@ This knowledge base should be reviewed and updated:
 - Payment methods
 - Return and warranty policy structure
 
-### Dynamic (changes frequently — check live app/database)
+### Dynamic (use `data_needed` to fetch from the live database — never answer from cached text)
 
-- Product prices
-- Stock levels (in stock / out of stock)
-- Active promotional codes
-- Delivery time estimates (may vary with demand)
-- Branch phone numbers (rare changes)
+| Topic | Table to query |
+|-------|----------------|
+| Product prices | `spare_part_products` |
+| Stock levels (in stock / out of stock) | `spare_part_products` |
+| Product descriptions and brand details | `spare_part_products` |
+| Customer's order status | `orders` (auto-scoped to requesting user) |
+| Customer's order history | `orders` (auto-scoped to requesting user) |
+| Items inside a specific order | `order_items` |
 
-For dynamic data, the chatbot should instruct users to:
-> "Check the current price/stock in the Ali Grandsons app" OR  
-> "Contact us on WhatsApp (+968 9576 0754) for the latest information."
+> See **Document 13** for the exact `data_request` JSON payloads to return for each scenario.

@@ -1,5 +1,13 @@
 # Knowledge Base — Document 04: Ordering Process & Delivery Policy
 
+> **CHATBOT INSTRUCTION — MANDATORY**  
+> When a customer asks about **their specific order, order status, tracking, or order history**,
+> do **NOT** guess or fabricate an answer.  
+> Always return `data_needed` with `table: "orders"` to fetch the customer's live order
+> data from the database. The app automatically scopes the query to the asking customer.  
+> See **Document 13** for the exact payload format.  
+> This document covers general ordering process only — use it for "how do I…" questions.
+
 ---
 
 ## How to Place an Order (App)
