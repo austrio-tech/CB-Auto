@@ -11,7 +11,7 @@ class ChatRequest(BaseModel):
 
 class RespondRequest(BaseModel):
     ref_code: str
-    data: dict[str, Any]
+    data: list[Any] | dict[str, Any]
 
 
 class DataRequest(BaseModel):
