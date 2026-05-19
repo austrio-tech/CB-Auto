@@ -15,9 +15,8 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    kb = knowledge.load_knowledge_base(settings.kb_folder)
-    non_empty = sum(1 for line in kb.splitlines() if line.strip())
-    logger.info(f"Knowledge base ready — {non_empty} non-empty lines from '{settings.kb_folder}/'")
+    knowledge.load_knowledge_base(settings.kb_folder)
+    logger.info(f"Knowledge base ready — {len(knowledge._sections)} sections loaded from '{settings.kb_folder}/'")
     yield
 
 

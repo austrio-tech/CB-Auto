@@ -11,7 +11,8 @@ from app.models.schemas import (
     DataRequest,
     RespondRequest,
 )
-from app.services import knowledge, llm
+from app.services import llm
+from app.services import knowledge
 from app.services import session as session_store
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
@@ -24,8 +25,7 @@ async def require_api_key(x_api_key: str = Header(...)):
 
 @router.post("", response_model=Union[AnsweredResponse, DataNeededResponse])
 async def chat(req: ChatRequest, _=Depends(require_api_key)):
-    """Send a question. Returns a direct answer or a data_needed response with a ref_code."""
-    kb = knowledge.get_knowledge_base()
+    kb = knowledge.get_relevant_kb(req.question)
     messages = [{"role": "user", "content": req.question}]
 
     raw = await llm.ask_llm(messages, kb)
@@ -54,28 +54,21 @@ async def chat(req: ChatRequest, _=Depends(require_api_key)):
 
 @router.post("/respond", response_model=AnsweredResponse)
 async def respond(req: RespondRequest, _=Depends(require_api_key)):
-    """Supply database data for a pending ref_code. Returns the final computed answer."""
     sess = session_store.get_session(req.ref_code)
     if sess is None:
         raise HTTPException(status_code=404, detail="ref_code not found or has expired")
 
-    kb = knowledge.get_knowledge_base()
+    kb = knowledge.get_relevant_kb(sess.question)
 
-    assistant_context = (
-        f"I need the following database data to answer your question:\n"
-        f"Description: {sess.data_request.get('description', '')}\n"
-        f"Fields: {', '.join(sess.data_request.get('fields_needed', []))}"
-    )
-    data_message = (
-        f"Here is the data from the database:\n"
-        f"{json.dumps(req.data, indent=2)}\n\n"
-        f"Now please answer the original question."
-    )
-    messages = [
-        *sess.conversation_history,
-        {"role": "assistant", "content": assistant_context},
-        {"role": "user", "content": data_message},
-    ]
+    # Single compact message — avoids replaying the full conversation history
+    messages = [{
+        "role": "user",
+        "content": (
+            f"Question: {sess.question}\n\n"
+            f"DB data:\n{json.dumps(req.data, separators=(',', ':'))}\n\n"
+            f"Answer the question using this data. Plain text only."
+        ),
+    }]
 
     raw = await llm.ask_llm(messages, kb)
     session_store.delete_session(req.ref_code)

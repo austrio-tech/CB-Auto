@@ -11,28 +11,13 @@ logger = logging.getLogger(__name__)
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 _SYSTEM_TEMPLATE = """\
-You are a helpful business assistant. Use the knowledge base below to answer user questions accurately and concisely.
-The knowledge base may include a database schema section — use it to know which tables and columns exist.
+Business assistant. Answer from the KB below. KB may include a DB schema — use exact table/column names from it.
+If the answer needs live DB records, reply ONLY with this JSON (nothing else):
+{{"needs_data":true,"description":"<why>","table":"<table>","fields_needed":["col1","col2"],"filters":{{"col":"val"}}}}
+Never invent records or numbers. Plain text answers only.
 
-RULES:
-1. Answer using the knowledge base whenever possible.
-2. If answering requires specific records from a database, respond ONLY with this exact JSON and nothing else:
-   {{
-     "needs_data": true,
-     "description": "<what data you need and why>",
-     "table": "<exact table name from the schema>",
-     "fields_needed": ["column1", "column2"],
-     "filters": {{"column": "value extracted from the user question"}}
-   }}
-   - "table" must be a real table name from the database schema in the knowledge base.
-   - "fields_needed" must be real column names from that table.
-   - "filters" should contain any lookup values the user mentioned (e.g. an account ID, order number).
-3. Never fabricate specific records, IDs, balances, or numbers — request them instead.
-4. Keep answers concise and in plain text. Avoid markdown unless it genuinely aids clarity.
-
-=== KNOWLEDGE BASE ===
-{kb}
-=== END KNOWLEDGE BASE ==="""
+KB:
+{kb}"""
 
 
 async def ask_llm(messages: list[dict], knowledge_base: str) -> str:
