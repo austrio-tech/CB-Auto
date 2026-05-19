@@ -1,7 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
@@ -33,6 +33,19 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    if request.method == "POST":
+        raw = await request.body()
+        body_str = raw.decode("utf-8", errors="replace")
+        logger.info(f"Incoming {request.method} {request.url.path} | Body: {body_str}")
+        # Re-inject body so the route handler can still read it
+        async def _receive():
+            return {"type": "http.request", "body": raw}
+        request._receive = _receive
+    return await call_next(request)
 
 app.include_router(chat.router)
 
