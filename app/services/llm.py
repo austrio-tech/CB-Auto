@@ -38,7 +38,8 @@ RULES:
 async def ask_llm(messages: list[dict], knowledge_base: str) -> str:
     system_content = _SYSTEM_TEMPLATE.format(kb=knowledge_base or "(No knowledge base loaded)")
     payload = {
-        "model": settings.openrouter_model,
+        "models": settings.models_list,
+        "route": "fallback",
         "messages": [{"role": "system", "content": system_content}, *messages],
     }
     headers = {
@@ -62,8 +63,8 @@ async def ask_llm(messages: list[dict], knowledge_base: str) -> str:
             if status == 401:
                 raise HTTPException(502, f"OpenRouter auth failed — check OPENROUTER_API_KEY. Detail: {detail}")
             if status == 404:
-                raise HTTPException(502, f"Model not found on OpenRouter: '{settings.openrouter_model}'. "
-                                        f"Check OPENROUTER_MODEL in .env. Detail: {detail}")
+                raise HTTPException(502, f"No available model found on OpenRouter. "
+                                        f"Check OPENROUTER_MODELS in .env. Detail: {detail}")
             if status == 429:
                 raise HTTPException(429, f"Model provider is overloaded — retry in a moment. Detail: {detail}")
             raise HTTPException(502, f"OpenRouter error {status}: {detail}")
