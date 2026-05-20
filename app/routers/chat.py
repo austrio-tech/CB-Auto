@@ -77,7 +77,7 @@ async def respond(req: RespondRequest, _=Depends(require_api_key)):
         "content": (
             f"Question: {sess.question}\n\n"
             f"DB data:\n{json.dumps(req.data, separators=(',', ':'))}\n\n"
-            f"Answer the question using this data. Plain text only."
+            f"Answer the question using this data. Write a full, formal response with markdown formatting."
         ),
     }]
 

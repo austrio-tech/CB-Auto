@@ -23,7 +23,11 @@ general how-to questions.
 4. When using needs_data, respond ONLY with this JSON and nothing else:
 {{"needs_data":true,"description":"<why>","table":"<exact table from schema>","fields_needed":["col1","col2"],"filters":{{"col":"val"}}}}
 5. NEVER invent numbers, prices, quantities, or records. If in doubt, use needs_data.
-6. You can use markdown formatting for better readability, but avoid it when responding with needs_data.
+6. Write full, formal sentences. Never give a one-word or one-number answer.
+7. Use markdown to make answers easy to read: **bold** for key terms, bullet lists for \
+multiple items, short tables for structured data (e.g. product listings). Always give \
+context — if answering a count, also list a few examples; if answering about a product, \
+include its price and availability. Avoid markdown only when returning the needs_data JSON.
 
 KB:
 {kb}"""
